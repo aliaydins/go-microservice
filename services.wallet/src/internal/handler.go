@@ -1,7 +1,7 @@
-package user
+package wallet
 
 import (
-	"github.com/aliaydins/microservice/services.user/src/pkg/middleware"
+	"github.com/aliaydins/microservice/service.wallet/src/pkg/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,7 +24,6 @@ func (h *Handler) initRoutes(router *gin.Engine) {
 	router.Use(middleware.CORS())
 	routerGroup := router.Group("/")
 	routerGroup.GET("/health", h.health)
-	routerGroup.POST("/login", h.signIn)
-	routerGroup.POST("/register", h.signUp)
+	routerGroup.GET("/:id", middleware.AuthMiddleware(h.secretKey), h.GetWallet)
 
 }

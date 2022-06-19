@@ -27,7 +27,7 @@ func main() {
 
 	repo := user.NewRepository(db)
 	service := user.NewService(repo)
-	handler := user.NewHandler(service)
+	handler := user.NewHandler(service, config.SecretKey)
 
 	err = server.NewServer(handler.Init(), config.AppPort).Run()
 	if err != nil {

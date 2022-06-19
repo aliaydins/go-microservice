@@ -40,6 +40,7 @@ func (s *Service) SignUp(user *entity.User) (*entity.User, error) {
 
 	return usr, nil
 }
+
 func (s *Service) ValidateUser(email string, password string, secretKey string) (*entity.User, string, error) {
 	user, err := s.repo.FindByEmail(email)
 	if err != nil {
@@ -56,7 +57,7 @@ func (s *Service) ValidateUser(email string, password string, secretKey string) 
 		"lastname":  user.LastName,
 		"iat":       time.Now().Unix(),
 		"exp": time.Now().Add(12 *
-			time.Hour).Unix(),
+			time.Second).Unix(),
 	})
 
 	accessToken := jwt_helper.GenerateToken(jwtClaims, secretKey)

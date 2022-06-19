@@ -6,14 +6,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-type DecodedToken struct {
-	UserID   int    `json:"userID"`
-	Username string `json:"username"`
-	Iat      int    `json:"iat"`
-	Exp      int    `json:"exp"`
-	Iss      string `json:"iss"`
-}
-
 func GenerateToken(claims *jwt.Token, secret string) (token string) {
 	hmacSecretString := secret
 	hmacSecret := []byte(hmacSecretString)

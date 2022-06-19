@@ -27,7 +27,7 @@ func (h *Handler) signIn(c *gin.Context) {
 	req := new(entity.User)
 	c.BindJSON(&req)
 
-	user, accessToken, err := h.service.ValidateUser(req.Email, req.Password, "secretKey")
+	user, accessToken, err := h.service.ValidateUser(req.Email, req.Password, h.secretKey)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": ErrInvalidCredentials})
 		return
