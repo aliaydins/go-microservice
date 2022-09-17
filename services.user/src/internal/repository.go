@@ -2,17 +2,21 @@ package user
 
 import (
 	"github.com/aliaydins/microservice/services.user/src/entity"
+	"github.com/aliaydins/microservice/shared/rabbitmq"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 type Repository struct {
-	db *gorm.DB
+	db       *gorm.DB
+	rabbitmq *rabbitmq.RabbitMQ
 }
 
-func NewRepository(db *gorm.DB) *Repository {
+func NewRepository(db *gorm.DB, rabbitmq *rabbitmq.RabbitMQ) *Repository {
 	db.Logger.LogMode(logger.Info)
-	return &Repository{db: db}
+	return &Repository{
+		db:       db,
+		rabbitmq: rabbitmq}
 }
 
 func (r *Repository) Create(user *entity.User) (*entity.User, error) {

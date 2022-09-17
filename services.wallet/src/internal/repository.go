@@ -23,3 +23,11 @@ func (r *Repository) FindById(id int) (*entity.Wallet, error) {
 	}
 	return wallet, nil
 }
+
+func (r *Repository) Create(wallet *entity.Wallet) error {
+	err := r.db.Model(&entity.Wallet{}).Create(&wallet).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -2,9 +2,8 @@ package server
 
 import (
 	"context"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type Server struct {

@@ -1,7 +1,7 @@
 package wallet
 
 import (
-	"github.com/aliaydins/microservice/service.wallet/src/pkg/middleware"
+	middleware "github.com/aliaydins/microservice/shared/middleware"
 	"github.com/gin-gonic/gin"
 )
 

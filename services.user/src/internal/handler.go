@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/aliaydins/microservice/services.user/src/pkg/middleware"
+	"github.com/aliaydins/microservice/shared/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,15 +16,15 @@ func NewHandler(service *Service, secretKey string) *Handler {
 
 func (h *Handler) Init() *gin.Engine {
 	router := gin.Default()
-	h.initRoutes(router)
+	h.iRoutes(router)
 	return router
 }
 
-func (h *Handler) initRoutes(router *gin.Engine) {
+func (h *Handler) iRoutes(router *gin.Engine) {
 	router.Use(middleware.CORS())
 	routerGroup := router.Group("/")
 	routerGroup.GET("/health", h.health)
-	routerGroup.POST("/login", h.signIn)
-	routerGroup.POST("/register", h.signUp)
+	routerGroup.POST("/login", h.login)
+	routerGroup.POST("/register", h.register)
 
 }

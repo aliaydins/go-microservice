@@ -10,26 +10,27 @@ func (h *Handler) health(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "user service is up"})
 }
 
-func (h *Handler) signUp(c *gin.Context) {
+func (h *Handler) register(c *gin.Context) {
 
 	req := new(entity.User)
 	c.BindJSON(&req)
 
-	user, err := h.service.SignUp(req)
+	user, err := h.service.Register(req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"user": mapper(user)})
 }
-func (h *Handler) signIn(c *gin.Context) {
+func (h *Handler) login(c *gin.Context) {
 
 	req := new(entity.User)
 	c.BindJSON(&req)
 
 	user, accessToken, err := h.service.ValidateUser(req.Email, req.Password, h.secretKey)
+
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": ErrInvalidCredentials})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 

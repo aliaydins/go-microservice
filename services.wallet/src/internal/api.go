@@ -13,7 +13,7 @@ func (h *Handler) health(c *gin.Context) {
 func (h *Handler) GetWallet(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"message": ErrNotValidWalletID})
+		c.JSON(http.StatusBadGateway, gin.H{"message": ErrNotValidWalletID.Error()})
 		return
 	}
 
@@ -22,6 +22,6 @@ func (h *Handler) GetWallet(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"wallet": mapper(wallet)})
+	c.JSON(http.StatusOK, gin.H{"wallet": wallet})
 
 }

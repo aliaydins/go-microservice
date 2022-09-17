@@ -1,23 +1,30 @@
 package user
 
 import (
+	"encoding/json"
+	"fmt"
+	config2 "github.com/aliaydins/microservice/services.user/src/config"
 	"github.com/aliaydins/microservice/services.user/src/entity"
-	jwt_helper "github.com/aliaydins/microservice/services.user/src/pkg/jwt"
+	"github.com/aliaydins/microservice/services.user/src/event"
+	jwt_helper "github.com/aliaydins/microservice/shared/jwt"
+	"github.com/aliaydins/microservice/shared/rabbitmq"
 	"github.com/dgrijalva/jwt-go"
 	"time"
 )
 
 type Service struct {
-	repo *Repository
+	repo     *Repository
+	rabbitmq *rabbitmq.RabbitMQ
 }
 
-func NewService(repo *Repository) *Service {
+func NewService(repo *Repository, rabbitmq *rabbitmq.RabbitMQ) *Service {
 	return &Service{
-		repo: repo,
+		repo:     repo,
+		rabbitmq: rabbitmq,
 	}
 }
 
-func (s *Service) SignUp(user *entity.User) (*entity.User, error) {
+func (s *Service) Register(user *entity.User) (*entity.User, error) {
 
 	u, _ := s.repo.FindByEmail(user.Email)
 	if u != nil {
@@ -37,6 +44,10 @@ func (s *Service) SignUp(user *entity.User) (*entity.User, error) {
 	}
 
 	// create new wallet this user,  publish event here for wallet service
+	err = PublishUserCreatedEvent(newUser, s.rabbitmq)
+	if err != nil {
+		return nil, err
+	}
 
 	return usr, nil
 }
@@ -62,4 +73,21 @@ func (s *Service) ValidateUser(email string, password string, secretKey string) 
 
 	accessToken := jwt_helper.GenerateToken(jwtClaims, secretKey)
 	return user, accessToken, nil
+}
+
+func PublishUserCreatedEvent(createdUser entity.User, r *rabbitmq.RabbitMQ) error {
+	config := config2.LoadConfig(".")
+	userCreatedEvent := event.UserCreated{
+		UserId: createdUser.ID,
+		Email:  createdUser.Email,
+	}
+
+	payload, _ := json.Marshal(userCreatedEvent)
+	err := r.Publish(payload, config.UserExchange, "UserCreated")
+	if err != nil {
+		return err
+	}
+	fmt.Println("UserCreated event published with id ->", userCreatedEvent.UserId)
+	return nil
+
 }

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	jwt_helper "github.com/aliaydins/microservice/service.wallet/src/pkg/jwt"
+	jwt_helper "github.com/aliaydins/microservice/shared/jwt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

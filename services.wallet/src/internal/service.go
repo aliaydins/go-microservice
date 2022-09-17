@@ -12,11 +12,29 @@ func NewService(repo *Repository) *Service {
 	}
 }
 
-func (s *Service) GetWallet(id int) (*entity.Wallet, error) {
+func (s *Service) GetWallet(id int) (*WalletDTO, error) {
 	wallet, err := s.repo.FindById(id)
 	if err != nil {
 		return nil, ErrWalletNotFound
 	}
 
-	return wallet, nil
+	walletDto := mapper(wallet)
+
+	return walletDto, nil
+}
+
+func (s *Service) CreateWallet(userId int) error {
+	newWallet := entity.Wallet{
+		UserId: userId,
+		USD:    30000,
+		BTC:    5,
+	}
+
+	err := s.repo.Create(&newWallet)
+	if err != nil {
+		return ErrWalletNotCreated
+	}
+
+	return nil
+
 }
