@@ -67,8 +67,8 @@ func (s *Service) ValidateUser(email string, password string, secretKey string) 
 		"firstname": user.FirstName,
 		"lastname":  user.LastName,
 		"iat":       time.Now().Unix(),
-		"exp": time.Now().Add(12 *
-			time.Second).Unix(),
+		"exp": time.Now().Add(24 *
+			time.Hour).Unix(),
 	})
 
 	accessToken := jwt_helper.GenerateToken(jwtClaims, secretKey)

@@ -1,6 +1,9 @@
 package wallet
 
-import "github.com/aliaydins/microservice/service.wallet/src/entity"
+import (
+	"fmt"
+	"github.com/aliaydins/microservice/service.wallet/src/entity"
+)
 
 type Service struct {
 	repo *Repository
@@ -23,9 +26,9 @@ func (s *Service) GetWallet(id int) (*WalletDTO, error) {
 	return walletDto, nil
 }
 
-func (s *Service) CreateWallet(userId int) error {
+func (s *Service) CreateWallet(userID int) error {
 	newWallet := entity.Wallet{
-		UserId: userId,
+		UserId: userID,
 		USD:    30000,
 		BTC:    5,
 	}
@@ -36,5 +39,14 @@ func (s *Service) CreateWallet(userId int) error {
 	}
 
 	return nil
+}
 
+func (s *Service) UpdateWallet(wallet *entity.Wallet, id int) (*WalletDTO, error) {
+
+	err := s.repo.UpdateByUserID(wallet, id)
+	if err != nil {
+		return nil, ErrWalletNotUpdated
+	}
+	fmt.Println(wallet)
+	return mapper(wallet), nil
 }

@@ -7,7 +7,7 @@ import (
 
 func CreateWallet(service *wallet.Service, userId int) {
 
-	fmt.Println("user id is -> ", userId)
+	fmt.Println("User id is -> ", userId)
 
 	err := service.CreateWallet(userId)
 	if err != nil {

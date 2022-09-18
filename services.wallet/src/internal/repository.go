@@ -31,3 +31,8 @@ func (r *Repository) Create(wallet *entity.Wallet) error {
 	}
 	return nil
 }
+
+func (r *Repository) UpdateByUserID(wallet *entity.Wallet, id int) error {
+	err := r.db.Model(&wallet).Where("user_id = ?", id).Updates(entity.Wallet{UserId: id, USD: wallet.USD, BTC: wallet.BTC}).Error
+	return err
+}

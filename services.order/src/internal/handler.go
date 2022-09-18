@@ -1,7 +1,7 @@
-package wallet
+package order
 
 import (
-	middleware "github.com/aliaydins/microservice/shared/middleware"
+	"github.com/aliaydins/microservice/shared/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,15 +16,15 @@ func NewHandler(service *Service, secretKey string) *Handler {
 
 func (h *Handler) Init() *gin.Engine {
 	router := gin.Default()
-	h.initRoutes(router)
+	h.iRoutes(router)
 	return router
 }
 
-func (h *Handler) initRoutes(router *gin.Engine) {
+func (h *Handler) iRoutes(router *gin.Engine) {
 	router.Use(middleware.CORS())
 	routerGroup := router.Group("/")
 	routerGroup.GET("/health", h.health)
-	routerGroup.GET("/:id", middleware.AuthMiddleware(h.secretKey), h.GetWallet)
-	routerGroup.PUT("/:id", middleware.AuthMiddleware(h.secretKey), h.UpdateWallet)
+	routerGroup.GET("/", middleware.AuthMiddleware(h.secretKey), h.getOrders)
+	routerGroup.POST("/", middleware.AuthMiddleware(h.secretKey), h.createOrder)
 
 }

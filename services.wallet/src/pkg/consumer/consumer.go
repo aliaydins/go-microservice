@@ -35,7 +35,7 @@ func RegisterConsumer(r *rabbitmq.RabbitMQ, service *wallet.Service, queueName s
 				fmt.Println("Can't unmarshal the byte array")
 				return
 			}
-			fmt.Printf("Message consumed from %s and consumed user information is -> %d %s \n ", queueName, userDto.UserId, userDto.Email)
+			fmt.Printf("Message consumed from %s and consumed user information is -> %d %s\n", queueName, userDto.UserId, userDto.Email)
 
 			if eventType == "UserCreated" {
 				eventhandler.CreateWallet(service, userDto.UserId)
