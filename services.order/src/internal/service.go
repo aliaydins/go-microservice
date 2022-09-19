@@ -47,14 +47,14 @@ func (s *Service) GetOrders() ([]OrderDTO, []OrderDTO, error) {
 func (s *Service) CreateOrder(reqOrder *entity.Order, token string) error {
 
 	client := httpclient.NewCustomerClient()
-	wDto, err := client.GetWalletInfo(reqOrder.UserId, token)
+	WDto, err := client.GetWalletInfo(reqOrder.UserId, token)
 	if err != nil {
 		return err
 	}
 
 	if reqOrder.Type == entity.BUY {
 
-		if reqOrder.Price*reqOrder.Quantity > wDto.Wallet.USD {
+		if reqOrder.Price*reqOrder.Quantity > WDto.Wallet.USD {
 			return ErrOrderDeny
 		}
 
@@ -72,13 +72,32 @@ func (s *Service) CreateOrder(reqOrder *entity.Order, token string) error {
 			return ErrWhenOrderDeleted
 		}
 
-		err = PublishOrderCompletedEvent(reqOrder, order, s.rabbitmq)
+		sWDto, err := client.GetWalletInfo(order.UserId, token)
+
+		deletedUSDFromBuyer := WDto.Wallet.USD - (reqOrder.Price * reqOrder.Quantity)
+		addedQuantityForBuyer := WDto.Wallet.BTC + reqOrder.Quantity
+		addedUSDForSeller := (reqOrder.Price * reqOrder.Quantity) + sWDto.Wallet.USD
+		deletedQuantityForSeller := sWDto.Wallet.BTC - reqOrder.Quantity
+
+		err = client.WalletUpdate(reqOrder.UserId, deletedUSDFromBuyer, addedQuantityForBuyer, token)
+		if err != nil {
+			return ErrWalletUpdated
+		}
+		err = client.WalletUpdate(sWDto.Wallet.UserId, addedUSDForSeller, deletedQuantityForSeller, token)
+		if err != nil {
+			return ErrWalletUpdated
+		}
+
+		err = PublishOrderCompletedEvent(reqOrder, s.rabbitmq)
+		err = PublishOrderCompletedEvent(order, s.rabbitmq)
 		if err != nil {
 			return err
 		}
-	} else {
+	}
 
-		if reqOrder.Quantity > wDto.Wallet.BTC {
+	if reqOrder.Type == entity.SELL {
+
+		if reqOrder.Quantity > WDto.Wallet.BTC {
 			return ErrOrderDeny
 		}
 
@@ -96,7 +115,24 @@ func (s *Service) CreateOrder(reqOrder *entity.Order, token string) error {
 			return ErrWhenOrderDeleted
 		}
 
-		err = PublishOrderCompletedEvent(order, reqOrder, s.rabbitmq)
+		bWDto, err := client.GetWalletInfo(order.UserId, token)
+
+		deletedUSDForBuyer := bWDto.Wallet.USD - (reqOrder.Price * reqOrder.Quantity)
+		addedQuantityForBuyer := bWDto.Wallet.BTC + reqOrder.Quantity
+		addedUSDForSeller := (reqOrder.Price * reqOrder.Quantity) + WDto.Wallet.USD
+		deletedQuantityForSeller := WDto.Wallet.BTC - reqOrder.Quantity
+
+		err = client.WalletUpdate(reqOrder.UserId, addedUSDForSeller, deletedQuantityForSeller, token)
+		if err != nil {
+			return ErrWalletUpdated
+		}
+		err = client.WalletUpdate(bWDto.Wallet.UserId, deletedUSDForBuyer, addedQuantityForBuyer, token)
+		if err != nil {
+			return ErrWalletUpdated
+		}
+
+		err = PublishOrderCompletedEvent(reqOrder, s.rabbitmq)
+		err = PublishOrderCompletedEvent(order, s.rabbitmq)
 		if err != nil {
 			return err
 		}
@@ -107,13 +143,14 @@ func (s *Service) CreateOrder(reqOrder *entity.Order, token string) error {
 
 }
 
-func PublishOrderCompletedEvent(buyer *entity.Order, seller *entity.Order, r *rabbitmq.RabbitMQ) error {
+func PublishOrderCompletedEvent(order *entity.Order, r *rabbitmq.RabbitMQ) error {
 
 	OrderCompletedEvent := event.OrderCompleted{
-		BuyerUserId:  buyer.UserId,
-		SellerUserId: seller.UserId,
-		USD:          buyer.Price * buyer.Quantity,
-		BTC:          buyer.Quantity,
+		UserId: order.UserId,
+		Type:   string(order.Type),
+		USD:    order.Price,
+		BTC:    order.Quantity,
+		Amount: order.Price * order.Quantity,
 	}
 
 	payload, _ := json.Marshal(OrderCompletedEvent)

@@ -21,12 +21,20 @@ func (h *Handler) getOrders(c *gin.Context) {
 
 func (h *Handler) createOrder(c *gin.Context) {
 
-	req := new(entity.Order)
+	req := new(OrderDTO)
 	c.BindJSON(&req)
+
+	reqBody := &entity.Order{
+		ID:       req.ID,
+		UserId:   req.UserId,
+		Type:     req.Type,
+		Price:    req.Price,
+		Quantity: req.Quantity,
+	}
 
 	token := c.GetHeader("access_token")
 
-	err := h.service.CreateOrder(req, token)
+	err := h.service.CreateOrder(reqBody, token)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return

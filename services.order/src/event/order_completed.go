@@ -1,8 +1,9 @@
 package event
 
 type OrderCompleted struct {
-	BuyerUserId  int `json:"buyer_user_id"` // maker
-	SellerUserId int `json:"seller_user_id"`
-	USD          int `json:"usd"`
-	BTC          int `json:"btc"`
+	UserId int    `json:"user_id"`
+	Type   string `json:"type"`
+	USD    int    `json:"usd"`
+	BTC    int    `json:"btc"`
+	Amount int    `json:"amount"`
 }

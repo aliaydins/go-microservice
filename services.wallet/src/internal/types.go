@@ -3,7 +3,6 @@ package wallet
 import "github.com/aliaydins/microservice/service.wallet/src/entity"
 
 type WalletDTO struct {
-	ID     int `json:"id""`
 	UserId int `json:"user_id"`
 	USD    int `json:"usd"`
 	BTC    int `json:"btc"`
@@ -11,7 +10,6 @@ type WalletDTO struct {
 
 func mapper(wallet *entity.Wallet) *WalletDTO {
 	dto := &WalletDTO{
-		ID:     wallet.ID,
 		UserId: wallet.UserId,
 		USD:    wallet.USD,
 		BTC:    wallet.BTC,
